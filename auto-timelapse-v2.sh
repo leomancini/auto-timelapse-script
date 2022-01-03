@@ -3,8 +3,6 @@
 USER=INSERT_USER_HERE
 SERVER=INSERT_SERVER_HERE
 SERVER_ROOT=INSERT_SERVER_ROOT_HERE
-SERVER_PATH=$SERVER_ROOT/INSERT_SNAPSHOTS_PATH_HERE/$CAMERA_FORMATTED
-IMG_TYPE=jpg
 
 RUNTIME=$(date +%s)
 
@@ -26,9 +24,11 @@ read END
 echo -n "FPS: [15, 30, 60] "
 read FPS
 
-printf "\nInitializing...\\n"
+printf "\nInitializing variables...\\n"
 
+IMG_TYPE=jpg
 CAMERA_FORMATTED=$(echo $CAMERA | tr 'a-z' 'A-Z')
+SERVER_PATH=$SERVER_ROOT/nest-cam-timelapse/images/$CAMERA_FORMATTED
 
 printf "Creating temporary directory on local machine...\\n"
 
