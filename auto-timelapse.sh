@@ -26,15 +26,14 @@ printf "\nInitializing variables...\\n"
 
 USER=INSERT_USER_HERE
 SERVER=INSERT_SERVER_HERE
-SERVER_PATH=INSERT_SNAPSHOTS_PATH_HERE/$CAMERA_FORMATTED
+SERVER_ROOT=INSERT_SERVER_ROOT_HERE
+SERVER_PATH=$SERVER_ROOT/INSERT_SNAPSHOTS_PATH_HERE/$CAMERA_FORMATTED
 IMG_TYPE=jpg
 
-printf "Creating temporary directory...\\n"
+printf "Creating temporary directory on local machine...\\n"
 
 mkdir -p ./.auto-timelapse-temp/
 mkdir ./.auto-timelapse-temp/$RUNTIME/
-
-IMGS_TO_DOWNLOAD=""
 
 printf "Building range of images to download...\\n"
 
@@ -48,26 +47,42 @@ i=0
 while [ "$dateTs" -le "$eDateTs" ]
 do
     date=`date -j -f "%s" $dateTs "+%Y-%m-%d-%H-%M"`
-    IMGS_TO_DOWNLOAD="$IMGS_TO_DOWNLOAD $SERVER_PATH/$date.$IMG_TYPE "
+    echo "/$SERVER_PATH/$date.$IMG_TYPE" >> ./.auto-timelapse-temp/$RUNTIME/images.txt
     dateTs=$(($dateTs+$offset))
     ((i=i+1))
 done
 
-printf "Looking to download ${PURPLE}$i${NC} images...\\n\n"
+printf "Creating temporary directory on remote host machine...\\n"
+
+ssh $USER@$SERVER "mkdir -p /$SERVER_ROOT/.auto-timelapse-temp/ && mkdir /$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/"
+
+printf "Copying list of images to remote host machine...\\n"
+
+scp -q ./.auto-timelapse-temp/$RUNTIME/images.txt $USER@$SERVER:/$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/
+
+printf "Packaging ${PURPLE}$i${NC} images into archive file...\\n"
+
+ssh $USER@$SERVER "tar -cf /$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/images.tar -T /$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/images.txt > /dev/null 2>&1"
 
 printf "${CYAN}Downloading images for range${NC} ${PURPLE}$START${NC} ${CYAN}through${NC} ${PURPLE}$END${NC}${CYAN}...${NC}\\n\n"
 
-scp -T $USER@$SERVER:"$IMGS_TO_DOWNLOAD" ./.auto-timelapse-temp/$RUNTIME/
+scp -T $USER@$SERVER:"/$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/images.tar" ./.auto-timelapse-temp/$RUNTIME/
 
-printf "\n${GREEN}# # # # FINISHED DOWNLOADING IMAGES # # # #${NC}\\n"
+printf "\n${GREEN}# # # # FINISHED DOWNLOADING IMAGES # # # #${NC}\\n\n"
 
-printf "\n${CYAN}Starting timelapse creation...${NC}\\n\n"
+printf "Unpacking archive file...\\n"
 
-ffmpeg -loglevel error -stats -r $FPS -pattern_type glob -i "./.auto-timelapse-temp/$RUNTIME/*.jpg" -s 1280x720 -vcodec libx264 ./$START--$END.mp4
+tar -xf ./.auto-timelapse-temp/$RUNTIME/images.tar -C ./.auto-timelapse-temp/$RUNTIME/
+
+printf "${CYAN}Starting timelapse creation...${NC}\\n\n"
+
+ffmpeg -loglevel error -stats -r $FPS -pattern_type glob -i "./.auto-timelapse-temp/$RUNTIME/$SERVER_PATH/*.jpg" -s 1280x720 -vcodec libx264 ./$START-to-$END-at-$FPS-fps.mp4
 
 printf "\n${GREEN}# # # # FINISHED TIMELAPSE CREATION # # # #${NC}\\n\n"
 
 echo "Cleaning up..."
+
+ssh $USER@$SERVER "rm -r /$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/"
 
 rm -r ./.auto-timelapse-temp/$RUNTIME/
 
