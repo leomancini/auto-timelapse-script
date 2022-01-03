@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+USER=INSERT_USER_HERE
+SERVER=INSERT_SERVER_HERE
+SERVER_ROOT=INSERT_SERVER_ROOT_HERE
+SERVER_PATH=$SERVER_ROOT/INSERT_SNAPSHOTS_PATH_HERE/$CAMERA_FORMATTED
+IMG_TYPE=jpg
+
 RUNTIME=$(date +%s)
 
 RED='\033[0;31m'
@@ -20,15 +26,9 @@ read END
 echo -n "FPS: [15, 30, 60] "
 read FPS
 
+printf "\nInitializing...\\n"
+
 CAMERA_FORMATTED=$(echo $CAMERA | tr 'a-z' 'A-Z')
-
-printf "\nInitializing variables...\\n"
-
-USER=INSERT_USER_HERE
-SERVER=INSERT_SERVER_HERE
-SERVER_ROOT=INSERT_SERVER_ROOT_HERE
-SERVER_PATH=$SERVER_ROOT/INSERT_SNAPSHOTS_PATH_HERE/$CAMERA_FORMATTED
-IMG_TYPE=jpg
 
 printf "Creating temporary directory on local machine...\\n"
 
@@ -82,9 +82,9 @@ printf "\n${GREEN}# # # # FINISHED TIMELAPSE CREATION # # # #${NC}\\n\n"
 
 echo "Cleaning up..."
 
-ssh $USER@$SERVER "rm -r /$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/"
+ssh $USER@$SERVER "rm -r /$SERVER_ROOT/.auto-timelapse-temp/"
 
-rm -r ./.auto-timelapse-temp/$RUNTIME/
+rm -r ./.auto-timelapse-temp/
 
 printf "\n${GREEN}# # # # DONE # # # #${NC}\\n\n"
-printf "Output: ${PURPLE}./$START-to-$END-at-$FPS-fps.mp4${NC}\\n\n"
+printf "Output: ${PURPLE}$START-to-$END-at-$FPS-fps.mp4${NC}\\n\n"
