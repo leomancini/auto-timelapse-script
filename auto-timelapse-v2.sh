@@ -35,6 +35,10 @@ printf "Creating temporary directory on local machine...\\n"
 mkdir -p ./.auto-timelapse-temp/
 mkdir ./.auto-timelapse-temp/$RUNTIME/
 
+printf "Creating temporary directory on remote host machine...\\n"
+
+ssh $USER@$SERVER "mkdir -p /$SERVER_ROOT/.auto-timelapse-temp/ && mkdir /$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/"
+
 printf "Building range of images to download...\\n"
 
 # Based on: https://stackoverflow.com/questions/4434782/loop-from-start-date-to-end-date-in-mac-os-x-shell-script
@@ -51,10 +55,6 @@ do
     dateTs=$(($dateTs+$offset))
     ((i=i+1))
 done
-
-printf "Creating temporary directory on remote host machine...\\n"
-
-ssh $USER@$SERVER "mkdir -p /$SERVER_ROOT/.auto-timelapse-temp/ && mkdir /$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/"
 
 printf "Copying list of images to remote host machine...\\n"
 
