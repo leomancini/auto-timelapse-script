@@ -39,7 +39,7 @@ printf "Creating temporary directory on remote host machine...\\n"
 
 ssh $USER@$SERVER "mkdir -p /$SERVER_ROOT/.auto-timelapse-temp/ && mkdir /$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/"
 
-printf "Building range of images to download...\\n"
+printf "Building list of images to download...\\n"
 
 # Based on: https://stackoverflow.com/questions/4434782/loop-from-start-date-to-end-date-in-mac-os-x-shell-script
 sDateTs=`date -j -f "%Y-%m-%d-%H-%M" $START "+%s"`
