@@ -87,4 +87,4 @@ ssh $USER@$SERVER "rm -r /$SERVER_ROOT/.auto-timelapse-temp/$RUNTIME/"
 rm -r ./.auto-timelapse-temp/$RUNTIME/
 
 printf "\n${GREEN}# # # # DONE # # # #${NC}\\n\n"
-printf "Output: ${PURPLE}$START--$END.mp4${NC}\\n\n"
+printf "Output: ${PURPLE}./$START-to-$END-at-$FPS-fps.mp4${NC}\\n\n"
