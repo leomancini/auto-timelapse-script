@@ -88,3 +88,5 @@ rm -r ./.auto-timelapse-temp/
 
 printf "\n${GREEN}# # # # DONE # # # #${NC}\\n\n"
 printf "Output: ${PURPLE}$START-to-$END-at-$FPS-fps.mp4${NC}\\n\n"
+
+open ./$START-to-$END-at-$FPS-fps.mp4
